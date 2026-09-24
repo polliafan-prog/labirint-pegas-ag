@@ -143,6 +143,9 @@ label.chk input{width:20px;height:20px;accent-color:var(--primary)}
   .pill{padding:5px 10px;font-size:13px}
   #dpad{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:4px}
   .dbtn{width:36px;height:36px;font-size:16px;border-radius:9px}
+  .exGrid{grid-template-columns:repeat(6,1fr);max-height:72vh}
+  .exTile{min-height:44px;font-size:11px}
+  .exTile img{height:38px}
 }
 </style>
 </head>
@@ -517,7 +520,7 @@ label.chk input{width:20px;height:20px;accent-color:var(--primary)}
 
   const M = { grid:null, cols:0, rows:0, cell:0, ox:0, oy:0, items:[], decor:[], startC:0, startR:0, exitC:0, exitR:0, entranceSide:'W', exitSide:'E' };
 
-  const PAD = 18, HUD_H = 54;
+  const PAD = 18, HUD_H = 54; // HUD_H — запасное значение на случай, если HUD ещё не отрисован
   function updateDpadDock(){
     const dpad = $('#dpad');
     const landscape = W >= H;
@@ -529,11 +532,16 @@ label.chk input{width:20px;height:20px;accent-color:var(--primary)}
     // резервируется только по одному измерению — лабиринт не становится крошечным
     const landscape = W >= H;
     const d = $('#dpad').getBoundingClientRect();
+    const hudRect = $('#hud').getBoundingClientRect();
     const dw = (landscape && d.width) ? d.width + 20 : 0;
     const dh = (!landscape && d.height) ? d.height + 20 : 0;
-    const x0 = PAD, y0 = PAD + HUD_H;
-    const w = Math.max(200, W - PAD*2 - dw);
-    const h = Math.max(200, H - PAD*2 - HUD_H - dh);
+    // реальная высота HUD (она меньше на узких/альбомных телефонах, где текст мельче) —
+    // резервируем ровно столько места, сколько HUD занимает сейчас, а не с фиксированным запасом
+    const hudH = hudRect.height ? hudRect.height + 8 : HUD_H;
+    const pad = Math.max(8, Math.min(PAD, Math.min(W, H) * .035));
+    const x0 = pad, y0 = pad + hudH;
+    const w = Math.max(180, W - pad*2 - dw);
+    const h = Math.max(180, H - pad*2 - hudH - dh);
     return { x0, y0, w, h };
   }
 
